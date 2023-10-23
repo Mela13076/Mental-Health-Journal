@@ -3,6 +3,7 @@ from tkinter import ttk
 from datetime import datetime
 import matplotlib.pyplot as plt
 import json
+import SearchAndFilters
  
 # Function to save journal entries to JSON file
 def save_entry():
@@ -12,7 +13,7 @@ def save_entry():
  
     # Read existing data from JSON file
     try:
-        with open("fake_data.json", "r") as file:
+        with open("data.json", "r") as file:
             data = json.load(file)
     except FileNotFoundError:
         data = []
@@ -39,6 +40,7 @@ def clear_fields():
 app = tk.Tk()
 app.title("Mental Health Journal")
 # Create and configure widgets
+SearchAndFilters.load(app)
 mood_label = tk.Label(app, text="Mood:")
 mood_var = tk.StringVar()
 mood_entry = ttk.Combobox(app, textvariable=mood_var, values=["Happy", "Sad", "Anxious", "Neutral", "Other"])
@@ -65,17 +67,31 @@ def show_mood_analytics():
     plt.ylabel("Count")
     plt.title("Mood Analytics")
     plt.show()
- 
+
+def search():
+    with open("data.json", "r") as file:
+        data = json.load(file)
+        # print(data)
+        treeview = ttk.Treeview(app, show="headings", columns=("Date", "Mood", "Thoughts"))
+        treeview.heading("#1", text="Date")
+        treeview.heading("#2", text="Mood")
+        treeview.heading("#3", text="Thoughts")
+        treeview.grid(row=6, column=0, columnspan=5, padx=10, pady=10)
+
+        for row in data:
+            treeview.insert("", "end",values=(row["Date"], row["Mood"], row["Thoughts"]))
+
 show_analytics_button = tk.Button(app, text="Show Mood Analytics", command=show_mood_analytics)
- 
+search_button = tk.Button(app, text="Search", command=search)
 # Grid layout for widgets
-mood_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
-mood_entry.grid(row=0, column=1, padx=10, pady=5)
-thoughts_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
-thoughts_text.grid(row=1, column=1, padx=10, pady=5, rowspan=3)
-save_button.grid(row=4, column=0, columnspan=2, padx=10, pady=10)
-clear_button.grid(row=4, column=1, columnspan=2, padx=10, pady=10)
-show_analytics_button.grid(row=5, column=0, columnspan=2, padx=10, pady=10)
- 
+mood_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
+mood_entry.grid(row=2, column=1, padx=10, pady=5)
+thoughts_label.grid(row=3, column=0, padx=10, pady=5, sticky="e")
+thoughts_text.grid(row=3, column=1, padx=10, pady=5, rowspan=3)
+save_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
+clear_button.grid(row=6, column=1, columnspan=2, padx=10, pady=10)
+show_analytics_button.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
+search_button.grid(row=7, column=1, columnspan=20, padx=50, pady=10)
+
 # Start the Tkinter main loop
 app.mainloop()
