@@ -99,20 +99,60 @@ save_button = tk.Button(journal_frame, text="Save Entry", command=save_entry)
 clear_button = tk.Button(journal_frame, text="Clear Fields", command=clear_fields)
 
 # Mood Analytics Widgets (existing code)
-def show_mood_analytics():
-    # Retrieve mood data from the journal (you may need to parse the journal file)
-    # For simplicity, let's assume a static mood dataset
-    moods = ["Happy", "Sad", "Neutral", "Anxious"]
-    mood_counts = [12, 5, 8, 3]
+def show_mood_analytics_barchart():
+    # Read mood data from the JSON file
+    try:
+        with open("data.json", "r") as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        data = []
+
+    # Initialize a dictionary to store mood counts
+    mood_counts = {"Happy": 0, "Sad": 0, "Neutral": 0, "Anxious": 0, "Other": 0}
+
+    # Count the occurrences of each mood in the data
+    for entry in data:
+        mood = entry.get("Mood", "")
+        if mood in mood_counts:
+            mood_counts[mood] += 1
+
+    # Extract mood labels and counts from the dictionary
+    moods = list(mood_counts.keys())
+    counts = list(mood_counts.values())
 
     # Create a bar chart
-    plt.bar(moods, mood_counts)
+    plt.bar(moods, counts)
     plt.xlabel("Mood")
     plt.ylabel("Count")
     plt.title("Mood Analytics")
     plt.show()
 
-show_analytics_button = tk.Button(analytics_frame, text="Show Mood Analytics", command=show_mood_analytics)
+show_bar_chart_button = tk.Button(analytics_frame, text="Show Mood Bar Chart", command=show_mood_analytics_barchart)
+
+def show_mood_analytics_piechart():
+    try:
+        with open("data.json", "r") as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        data = []
+
+    # Initialize a dictionary to store mood counts
+    mood_counts = {"Happy": 0, "Sad": 0, "Neutral": 0, "Anxious": 0, "Other": 0}
+
+    # Count the occurrences of each mood in the data
+    for entry in data:
+        mood = entry.get("Mood", "")
+        if mood in mood_counts:
+            mood_counts[mood] += 1
+
+    # Extract mood labels and counts from the dictionary
+    moods = list(mood_counts.keys())
+    counts = list(mood_counts.values())
+
+    fig, ax = plt.subplots()
+    ax.pie(counts, labels=moods, autopct='%1.1f%%')
+
+show_pie_chart_button = tk.Button(analytics_frame, text="Show Mood Pie Chart", command=show_mood_analytics_piechart)
 
 # Self-Improvement Goals Widgets
 goal_listbox = tk.Listbox(goals_frame, height=10, width=40)
@@ -131,7 +171,8 @@ save_button.grid(row=4, column=0, padx=10, pady=10)
 clear_button.grid(row=4, column=1, padx=10, pady=10)
 
 # Grid layout for widgets in Mood Analytics frame (existing code)
-show_analytics_button.grid(row=0, column=0, padx=10, pady=10)
+show_bar_chart_button.grid(row=0, column=0, padx=10, pady=10)
+show_pie_chart_button.grid(row=2, column=0, padx=10, pady=10)
 
 # Grid layout for widgets in Self-Improvement Goals frame
 goal_listbox.grid(row=0, column=0, padx=10, pady=10, rowspan=5, columnspan=2)

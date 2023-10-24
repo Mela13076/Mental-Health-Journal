@@ -53,5 +53,10 @@
         "Date": "2023-10-24 15:18:42",
         "Mood": "Happy",
         "Thoughts": "Today I found a kitten"
+    },
+    {
+        "Date": "2023-10-24 15:51:56",
+        "Mood": "Other",
+        "Thoughts": "I feel different today"
     }
 ]
