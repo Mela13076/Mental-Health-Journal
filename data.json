@@ -33,5 +33,35 @@
         "Date": "2023-10-09 16:45:00",
         "Mood": "Happy",
         "Thoughts": "Received good news."
+    },
+    {
+        "Date": "2023-10-23 09:39:54",
+        "Mood": "Anxious",
+        "Thoughts": "I have anxiety "
+    },
+    {
+        "Date": "2023-10-23 10:26:03",
+        "Mood": "Anxious",
+        "Thoughts": "kk"
+    },
+    {
+        "Date": "2023-10-23 10:26:08",
+        "Mood": "Sad",
+        "Thoughts": ""
+    },
+    {
+        "Date": "2023-10-24 15:18:42",
+        "Mood": "Happy",
+        "Thoughts": "Today I found a kitten"
+    },
+    {
+        "Date": "2023-10-24 18:08:34",
+        "Mood": "Sad",
+        "Thoughts": "Missed an important call. saved"
+    },
+    {
+        "Date": "2023-10-24 18:10:16",
+        "Mood": "Sad",
+        "Thoughts": "Missed an important call. saved date"
     }
 ]
