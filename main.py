@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+from datetime import datetime
+import matplotlib.pyplot as plt
+import json
 
 # Function to save journal entries to JSON file (existing code)
 def save_entry():
