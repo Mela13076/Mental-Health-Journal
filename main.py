@@ -101,7 +101,7 @@ app.grid_columnconfigure(2, weight=1)
 
 ai_string = tk.StringVar()
 ai_string.set("AI text")
-ai_label = tk.Label(journal_frame, textvariable=ai_string)
+ai_label = tk.Label(journal_frame, textvariable=ai_string, wraplength=300)
 
 # Journal Entry Widgets (existing code)
 mood_label = tk.Label(journal_frame, text="Mood:")
