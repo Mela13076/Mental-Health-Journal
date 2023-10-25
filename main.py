@@ -1,10 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
+import matplotlib.pyplot as plt
 import json
-import os
-import json
-from datetime import datetime
 
 # Function to save journal entries to JSON file (existing code)
 def save_entry():
@@ -37,7 +35,7 @@ def clear_fields():
     mood_var.set("")
     thoughts_text.delete("1.0", "end")
 
-# Function to add a goal to the list and save to JSON file
+# Function to add a goal to the list
 def add_goal():
     goal = goal_entry.get()
     if goal:
@@ -45,10 +43,7 @@ def add_goal():
         goal_listbox.insert(tk.END, goal)
         goal_entry.delete(0, tk.END)
 
-        # Save the updated goals list to a JSON file
-        save_goals_to_json()
-
-# Function to mark a goal as completed and save to JSON file
+# Function to mark a goal as completed
 def mark_completed():
     selected_goal = goal_listbox.get(tk.ACTIVE)
     if selected_goal:
@@ -56,80 +51,32 @@ def mark_completed():
             if goal["Goal"] == selected_goal:
                 goal["Completed"] = True
                 goal_listbox.itemconfig(tk.ACTIVE, {'bg': 'light green'})
-        
-        # Save the updated goals list to a JSON file and remove completed goals
-        save_goals_to_json()
-        remove_completed_goals()
+
 # Function to view goals
 def view_goals():
     view_window = tk.Toplevel(app)
     view_window.title("Goals List")
 
-    # Create a text widget to display the goals with a larger font
-    goals_text = tk.Text(view_window, height=15, width=40, wrap=tk.WORD, font=("Helvetica", 12))
-    goals_text.pack()
-
     for goal in goals:
         goal_text = goal["Goal"]
         completed = " (Completed)" if goal["Completed"] else ""
-        goal_text = goal_text + completed
+        goal_label = tk.Label(view_window, text=goal_text + completed)
+        goal_label.pack()
 
-        # Insert the goal text with a slightly larger font size
-        goals_text.insert(tk.END, goal_text + "\n")
-
-# Function to save goals to a JSON file
-def save_goals_to_json():
-    with open("goals.json", "w") as file:
-        json.dump(goals, file, indent=4)
-
-# Function to remove completed goals from the JSON file
-def remove_completed_goals():
-    goals[:] = [goal for goal in goals if not goal["Completed"]]
-    save_goals_to_json()
+# Function to toggle the visibility of the goals list
+def toggle_goals_visibility():
+    if goal_listbox.winfo_viewable():
+        goal_listbox.grid_remove()
+        toggle_visibility_button.config(text="Show Goals")
+    else:
+        goal_listbox.grid()
+        toggle_visibility_button.config(text="Hide Goals")
 
 # Create the main application window
 app = tk.Tk()
 app.title("Mental Health Journal")
 
 # Create and configure frames
-# Function to load goals from a JSON file
-def load_goals_from_json():
-    try:
-        with open("goals.json", "r") as file:
-            loaded_goals = json.load(file)
-            goals.clear()
-            for goal in loaded_goals:
-                goals.append(goal)
-    except FileNotFoundError:
-        goals.clear()
-
-# Function to add a goal to the list
-def add_goal():
-    goal = goal_entry.get()
-    if goal:
-        goals.append({"Goal": goal, "Completed": False})
-        goal_entry.delete(0, tk.END)
-        save_goals_to_json()
-        update_goals_listbox()
-
-# Function to update the goals listbox
-def update_goals_listbox():
-    goal_listbox.delete(0, tk.END)
-    for goal in goals:
-        goal_text = goal["Goal"]
-        goal_listbox.insert(tk.END, goal_text)
-
-def toggle_self_improvement():
-    global self_improvement_visible
-    if self_improvement_visible:
-        goals_frame.grid_remove()
-    else:
-        goals_frame.grid()
-    self_improvement_visible = not self_improvement_visible
-
-app = tk.Tk()
-app.title("Mental Health Journal")
-
 journal_frame = ttk.LabelFrame(app, text="Journal Entry")
 analytics_frame = ttk.LabelFrame(app, text="Mood Analytics")
 goals_frame = ttk.LabelFrame(app, text="Self-Improvement Goals")
@@ -172,10 +119,10 @@ goal_listbox = tk.Listbox(goals_frame, height=10, width=40)
 goal_entry = tk.Entry(goals_frame)
 add_goal_button = tk.Button(goals_frame, text="Add Goal", command=add_goal)
 mark_completed_button = tk.Button(goals_frame, text="Mark Completed", command=mark_completed)
-
-# Grid layout for widgets in Journal Entry frame
 view_goals_button = tk.Button(goals_frame, text="View Goals", command=view_goals)
+toggle_visibility_button = tk.Button(goals_frame, text="Toggle Visibility", command=toggle_goals_visibility)
 
+# Grid layout for widgets in Journal Entry frame (existing code)
 mood_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
 mood_entry.grid(row=0, column=1, padx=10, pady=5)
 thoughts_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
@@ -183,37 +130,19 @@ thoughts_text.grid(row=1, column=1, padx=10, pady=5, rowspan=3)
 save_button.grid(row=4, column=0, padx=10, pady=10)
 clear_button.grid(row=4, column=1, padx=10, pady=10)
 
-# Grid layout for widgets in Mood Analytics frame
+# Grid layout for widgets in Mood Analytics frame (existing code)
 show_analytics_button.grid(row=0, column=0, padx=10, pady=10)
 
 # Grid layout for widgets in Self-Improvement Goals frame
+goal_listbox.grid(row=0, column=0, padx=10, pady=10, rowspan=5, columnspan=2)
 goal_entry.grid(row=6, column=0, padx=10, pady=5)
 add_goal_button.grid(row=6, column=1, padx=10, pady=5)
 mark_completed_button.grid(row=7, column=0, columnspan=2, padx=10, pady=5)
-goal_listbox.grid(row=0, column=0, padx=10, pady=10, rowspan=5, columnspan=2)
-
-# Initialize goals list and load from JSON file if it exists
-goals = []
-
-if os.path.exists("goals.json"):
-    with open("goals.json", "r") as file:
-        goals = json.load(file)
-
-# Populate the goal_listbox with existing goals
-for goal in goals:
-    goal_text = goal["Goal"]
-    goal_listbox.insert(tk.END, goal_text)
-show_analytics_button.grid(row=0, column=0, padx=10, pady=10)
-
-goal_entry.grid(row=6, column=0, padx=10, pady=5)
-add_goal_button.grid(row=6, column=1, padx=10, pady=5)
 view_goals_button.grid(row=8, column=0, columnspan=2, padx=10, pady=5)
+toggle_visibility_button.grid(row=9, column=0, columnspan=2, padx=10, pady=5)
 
 # Initialize goals list
 goals = []
-self_improvement_visible = False
 
-self_improvement_button = tk.Button(app, text="Self Improvement Goals", command=toggle_self_improvement)
-self_improvement_button.grid(row=1, column=0, padx=10, pady=10, columnspan=2)
-
+# Start the Tkinter main loop
 app.mainloop()
