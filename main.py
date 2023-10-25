@@ -35,46 +35,11 @@ def clear_fields():
     mood_var.set("")
     thoughts_text.delete("1.0", "end")
 
-# Function to add a goal to the list
-def add_goal():
-    goal = goal_entry.get()
-    if goal:
-        goals.append({"Goal": goal, "Completed": False})
-        goal_listbox.insert(tk.END, goal)
-        goal_entry.delete(0, tk.END)
-
-# Function to mark a goal as completed
-def mark_completed():
-    selected_goal = goal_listbox.get(tk.ACTIVE)
-    if selected_goal:
-        for goal in goals:
-            if goal["Goal"] == selected_goal:
-                goal["Completed"] = True
-                goal_listbox.itemconfig(tk.ACTIVE, {'bg': 'light green'})
-
-# Function to view goals
-def view_goals():
-    view_window = tk.Toplevel(app)
-    view_window.title("Goals List")
-
-    for goal in goals:
-        goal_text = goal["Goal"]
-        completed = " (Completed)" if goal["Completed"] else ""
-        goal_label = tk.Label(view_window, text=goal_text + completed)
-        goal_label.pack()
-
-# Function to toggle the visibility of the goals list
-def toggle_goals_visibility():
-    if goal_listbox.winfo_viewable():
-        goal_listbox.grid_remove()
-        toggle_visibility_button.config(text="Show Goals")
-    else:
-        goal_listbox.grid()
-        toggle_visibility_button.config(text="Hide Goals")
 
 # Create the main application window
 app = tk.Tk()
 app.title("Mental Health Journal")
+goals.load(app)
 
 # Create and configure frames
 journal_frame = ttk.LabelFrame(app, text="Journal Entry")
