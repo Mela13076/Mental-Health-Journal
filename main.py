@@ -3,6 +3,8 @@ from tkinter import ttk
 from datetime import datetime
 import json
 import os
+import json
+from datetime import datetime
 
 # Function to save journal entries to JSON file (existing code)
 def save_entry():
@@ -58,6 +60,22 @@ def mark_completed():
         # Save the updated goals list to a JSON file and remove completed goals
         save_goals_to_json()
         remove_completed_goals()
+# Function to view goals
+def view_goals():
+    view_window = tk.Toplevel(app)
+    view_window.title("Goals List")
+
+    # Create a text widget to display the goals with a larger font
+    goals_text = tk.Text(view_window, height=15, width=40, wrap=tk.WORD, font=("Helvetica", 12))
+    goals_text.pack()
+
+    for goal in goals:
+        goal_text = goal["Goal"]
+        completed = " (Completed)" if goal["Completed"] else ""
+        goal_text = goal_text + completed
+
+        # Insert the goal text with a slightly larger font size
+        goals_text.insert(tk.END, goal_text + "\n")
 
 # Function to save goals to a JSON file
 def save_goals_to_json():
@@ -74,6 +92,44 @@ app = tk.Tk()
 app.title("Mental Health Journal")
 
 # Create and configure frames
+# Function to load goals from a JSON file
+def load_goals_from_json():
+    try:
+        with open("goals.json", "r") as file:
+            loaded_goals = json.load(file)
+            goals.clear()
+            for goal in loaded_goals:
+                goals.append(goal)
+    except FileNotFoundError:
+        goals.clear()
+
+# Function to add a goal to the list
+def add_goal():
+    goal = goal_entry.get()
+    if goal:
+        goals.append({"Goal": goal, "Completed": False})
+        goal_entry.delete(0, tk.END)
+        save_goals_to_json()
+        update_goals_listbox()
+
+# Function to update the goals listbox
+def update_goals_listbox():
+    goal_listbox.delete(0, tk.END)
+    for goal in goals:
+        goal_text = goal["Goal"]
+        goal_listbox.insert(tk.END, goal_text)
+
+def toggle_self_improvement():
+    global self_improvement_visible
+    if self_improvement_visible:
+        goals_frame.grid_remove()
+    else:
+        goals_frame.grid()
+    self_improvement_visible = not self_improvement_visible
+
+app = tk.Tk()
+app.title("Mental Health Journal")
+
 journal_frame = ttk.LabelFrame(app, text="Journal Entry")
 analytics_frame = ttk.LabelFrame(app, text="Mood Analytics")
 goals_frame = ttk.LabelFrame(app, text="Self-Improvement Goals")
@@ -95,7 +151,7 @@ thoughts_text = tk.Text(journal_frame, height=10, width=30)
 save_button = tk.Button(journal_frame, text="Save Entry", command=save_entry)
 clear_button = tk.Button(journal_frame, text="Clear Fields", command=clear_fields)
 
-# Function to show mood analytics (existing code)
+# Mood Analytics Widgets (existing code)
 def show_mood_analytics():
     # Retrieve mood data from the journal (you may need to parse the journal file)
     # For simplicity, let's assume a static mood dataset
@@ -118,6 +174,8 @@ add_goal_button = tk.Button(goals_frame, text="Add Goal", command=add_goal)
 mark_completed_button = tk.Button(goals_frame, text="Mark Completed", command=mark_completed)
 
 # Grid layout for widgets in Journal Entry frame
+view_goals_button = tk.Button(goals_frame, text="View Goals", command=view_goals)
+
 mood_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
 mood_entry.grid(row=0, column=1, padx=10, pady=5)
 thoughts_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
@@ -145,6 +203,17 @@ if os.path.exists("goals.json"):
 for goal in goals:
     goal_text = goal["Goal"]
     goal_listbox.insert(tk.END, goal_text)
+show_analytics_button.grid(row=0, column=0, padx=10, pady=10)
 
-# Start the Tkinter main loop
+goal_entry.grid(row=6, column=0, padx=10, pady=5)
+add_goal_button.grid(row=6, column=1, padx=10, pady=5)
+view_goals_button.grid(row=8, column=0, columnspan=2, padx=10, pady=5)
+
+# Initialize goals list
+goals = []
+self_improvement_visible = False
+
+self_improvement_button = tk.Button(app, text="Self Improvement Goals", command=toggle_self_improvement)
+self_improvement_button.grid(row=1, column=0, padx=10, pady=10, columnspan=2)
+
 app.mainloop()
