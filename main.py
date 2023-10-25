@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import json
+from datetime import datetime
 
 # Function to save journal entries to JSON file (existing code)
 def save_entry():
@@ -32,15 +33,6 @@ def save_entry():
 def clear_fields():
     mood_var.set("")
     thoughts_text.delete("1.0", "end")
-
-# Function to add a goal to the list
-def add_goal():
-    goal = goal_entry.get()
-    if goal:
-        goals.append({"Goal": goal, "Completed": False})
-        goal_entry.delete(0, tk.END)
-        save_goals_to_json()
-        update_goals_listbox()
 
 # Function to view goals
 def view_goals():
@@ -74,6 +66,15 @@ def load_goals_from_json():
                 goals.append(goal)
     except FileNotFoundError:
         goals.clear()
+
+# Function to add a goal to the list
+def add_goal():
+    goal = goal_entry.get()
+    if goal:
+        goals.append({"Goal": goal, "Completed": False})
+        goal_entry.delete(0, tk.END)
+        save_goals_to_json()
+        update_goals_listbox()
 
 # Function to update the goals listbox
 def update_goals_listbox():
@@ -130,10 +131,7 @@ def show_mood_analytics():
 
 show_analytics_button = tk.Button(analytics_frame, text="Show Mood Analytics", command=show_mood_analytics)
 
-# Self-Improvement Goals Widgets ...
-self_improvement_button = tk.Button(app, text="Self Improvement Goals", command=toggle_self_improvement)
-self_improvement_button.grid(row=1, column=2, padx=10, pady=10)
-
+# Self-Improvement Goals Widgets
 goal_listbox = tk.Listbox(goals_frame, height=10, width=40)
 goal_entry = tk.Entry(goals_frame)
 add_goal_button = tk.Button(goals_frame, text="Add Goal", command=add_goal)
@@ -152,7 +150,11 @@ goal_entry.grid(row=6, column=0, padx=10, pady=5)
 add_goal_button.grid(row=6, column=1, padx=10, pady=5)
 view_goals_button.grid(row=8, column=0, columnspan=2, padx=10, pady=5)
 
-# Initialize goals list ...
+# Initialize goals list
+goals = []
 self_improvement_visible = False
+
+self_improvement_button = tk.Button(app, text="Self Improvement Goals", command=toggle_self_improvement)
+self_improvement_button.grid(row=1, column=0, padx=10, pady=10, columnspan=2)
 
 app.mainloop()
