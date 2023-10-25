@@ -7,19 +7,20 @@ from collections import defaultdict
 import re
 
 def load(app, mood_var, thoughts_text):
-    global root, search_field, mood_input, thoughts_input
+    global search_field, mood_input, thoughts_input
 
     mood_input = mood_var
     thoughts_input = thoughts_text
+    
+    search_and_filter_entries_frame = tk.LabelFrame(app, text="Search and Filter Entries")
+    search_and_filter_frame = tk.Frame(search_and_filter_entries_frame, borderwidth=2, relief="groove")
 
-    root = app
-    search_label = tk.Label(app, text="Search Entries:")
-    search_field = tk.Text(app, height=1, width=30)
+    search_label = tk.Label(search_and_filter_frame, text="Search Entries:")
+    search_field = tk.Text(search_and_filter_frame, height=1, width=30)
     search_field.bind("<KeyRelease>", lambda e: filter_entries())
-    #search_field.bind("<FocusIn>", lambda e: filter_entries())
 
-    filter_label = tk.Label(app, text="Filter Entires:")
-    filter_frame = tk.Frame(app, borderwidth=2, relief="groove")
+    filter_label = tk.Label(search_and_filter_frame, text="Filter Entires:")
+    filter_frame = tk.Frame(search_and_filter_frame, borderwidth=2, relief="groove")
 
     left_frame = tk.Frame(filter_frame, borderwidth=2, relief="groove")
     left_frame.grid(row=0, column=0, padx=5, pady=5)
@@ -29,11 +30,21 @@ def load(app, mood_var, thoughts_text):
     add_mood_types(left_frame)
     add_keywords(right_frame)
     add_date(right_frame)
+    add_filter_clear_btn(filter_frame)
+    add_entries(search_and_filter_entries_frame)
 
+    search_and_filter_entries_frame.grid(row=0, columnspan=3, padx=10, pady=5)
+    search_and_filter_frame.pack(side='left', padx=10, pady=5)
     search_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
     search_field.grid(row=0, column=1, padx=10, pady=5)
     filter_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
     filter_frame.grid(row=1, column=1, padx=10, pady=5)
+
+def add_entries(search_and_filter_entries_frame):
+    global entries_frame
+    entries_frame = tk.Frame(search_and_filter_entries_frame, borderwidth=2)
+    display_entries(load_entries(), entries_frame)
+    entries_frame.pack(side='right', padx=10, pady=5)
 
 def add_mood_types(left_frame):
     canvas = tk.Canvas(left_frame, width=100, height=110)
@@ -97,6 +108,16 @@ def add_date(right_frame):
     to_date_calendar.bind('<<DateEntrySelected>>', lambda e: filter_entries())
     to_date_calendar.grid(row=1, column=1)
 
+def add_filter_clear_btn(filter_frame):
+    clear_filters_btn = tk.Button(filter_frame, text="Clear all Filters", command=clear_filters)
+    clear_filters_btn.grid(row=1, columnspan=2, padx=10, pady=10)
+
+def clear_filters():
+    selected_mood.set('')
+    from_date_calendar.delete(0, 'end')
+    to_date_calendar.delete(0, 'end')
+    filter_entries()
+
 def filter_entries():
     thought_input = search_field.get("1.0", "end-1c")
     selected_mood_type = selected_mood.get()
@@ -107,7 +128,7 @@ def filter_entries():
     filtered_mood_date = list(filter(lambda filtered_entry: filter_by_date(filtered_entry['Date'].split(' ')[0], 
                                                 selected_from_date, selected_to_date), filtered__mood))
     filtered_mood_date_thaughts = filter_by_taughts(thought_input, filtered_mood_date)
-    search_popup(filtered_mood_date_thaughts)
+    display_entries(filtered_mood_date_thaughts, entries_frame)
 
 def filter_by_date(date, from_date, to_date):
     if from_date != '' and to_date != '':
@@ -126,32 +147,27 @@ def filter_by_taughts(thought_input, thought_entries):
             thoughts_len_map[size].append(thought_entry)
     return sum(list(dict(sorted(thoughts_len_map.items(), key = lambda item: item[0], reverse=True)).values()), [])
 
-def search_popup(filtered_entries):
-    global pop_up
-    if pop_up is None or not pop_up.winfo_exists():
-        pop_up = tk.Toplevel(root)
-    
-    treeview = ttk.Treeview(pop_up, show="headings", columns=("Date", "Mood", "Thoughts"))
-    treeview.grid(row=6, column=0, columnspan=5, padx=10, pady=10)
+def display_entries(filtered_entries, entries_frame):
+    treeview = ttk.Treeview(entries_frame, show="headings", columns=("Date", "Mood", "Thoughts"))
+    treeview.grid(row=0, column=0)
+    treeview.column("#1", width=120)
     treeview.heading("#1", text="Date")
+    treeview.column("#2", width=100)
     treeview.heading("#2", text="Mood")
+    treeview.column("#3", width=500)
     treeview.heading("#3", text="Thoughts")
 
     for filtered_entry in filtered_entries:
         treeview.insert("", "end", values=(filtered_entry["Date"], filtered_entry["Mood"], filtered_entry["Thoughts"]))
 
-    treeview.bind("<Double-1>", lambda e: onDoubleClick(treeview, pop_up))
+    treeview.bind("<Double-1>", lambda e: onDoubleClick(treeview))
 
-def onDoubleClick(treeview, pop_up):
-    item = treeview.selection()[0]
-    entry = list(treeview.item(item, "values"))
+def onDoubleClick(treeview):
+    entry = list(treeview.item(treeview.selection()[0], "values"))
 
     mood_input.set(entry[1])
     thoughts_input.delete("1.0", "end")
     thoughts_input.insert(tk.END, entry[2])
-
-    pop_up.destroy()
-    pop_up = None
 
 def load_entries():
     try:
@@ -160,4 +176,4 @@ def load_entries():
     except FileNotFoundError:
         print("Unable to load data, file not found")
 
-pop_up = None
+#pop_up = None
