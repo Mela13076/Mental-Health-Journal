@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
-import matplotlib.pyplot as plt
 import json
+import os
 
-# Function to save journal entries to JSON file
+# Function to save journal entries to JSON file (existing code)
 def save_entry():
     entry_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     mood = mood_var.get()
@@ -30,29 +30,72 @@ def save_entry():
 
     clear_fields()
 
-# Function to clear input fields
+# Function to clear input fields (existing code)
 def clear_fields():
     mood_var.set("")
     thoughts_text.delete("1.0", "end")
+
+# Function to add a goal to the list and save to JSON file
+def add_goal():
+    goal = goal_entry.get()
+    if goal:
+        goals.append({"Goal": goal, "Completed": False})
+        goal_listbox.insert(tk.END, goal)
+        goal_entry.delete(0, tk.END)
+
+        # Save the updated goals list to a JSON file
+        save_goals_to_json()
+
+# Function to mark a goal as completed and save to JSON file
+def mark_completed():
+    selected_goal = goal_listbox.get(tk.ACTIVE)
+    if selected_goal:
+        for goal in goals:
+            if goal["Goal"] == selected_goal:
+                goal["Completed"] = True
+                goal_listbox.itemconfig(tk.ACTIVE, {'bg': 'light green'})
+        
+        # Save the updated goals list to a JSON file and remove completed goals
+        save_goals_to_json()
+        remove_completed_goals()
+
+# Function to save goals to a JSON file
+def save_goals_to_json():
+    with open("goals.json", "w") as file:
+        json.dump(goals, file, indent=4)
+
+# Function to remove completed goals from the JSON file
+def remove_completed_goals():
+    goals[:] = [goal for goal in goals if not goal["Completed"]]
+    save_goals_to_json()
 
 # Create the main application window
 app = tk.Tk()
 app.title("Mental Health Journal")
 
-# Create and configure widgets
-mood_label = tk.Label(app, text="Mood:")
+# Create and configure frames
+journal_frame = ttk.LabelFrame(app, text="Journal Entry")
+analytics_frame = ttk.LabelFrame(app, text="Mood Analytics")
+goals_frame = ttk.LabelFrame(app, text="Self-Improvement Goals")
+
+journal_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+analytics_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+goals_frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
+
+app.grid_columnconfigure(0, weight=1)
+app.grid_columnconfigure(1, weight=1)
+app.grid_columnconfigure(2, weight=1)
+
+# Journal Entry Widgets (existing code)
+mood_label = tk.Label(journal_frame, text="Mood:")
 mood_var = tk.StringVar()
-mood_entry = ttk.Combobox(app, textvariable=mood_var, values=["Happy", "Sad", "Anxious", "Neutral", "Other"])
+mood_entry = ttk.Combobox(journal_frame, textvariable=mood_var, values=["Happy", "Sad", "Anxious", "Neutral", "Other"])
+thoughts_label = tk.Label(journal_frame, text="Thoughts/Feelings:")
+thoughts_text = tk.Text(journal_frame, height=10, width=30)
+save_button = tk.Button(journal_frame, text="Save Entry", command=save_entry)
+clear_button = tk.Button(journal_frame, text="Clear Fields", command=clear_fields)
 
-thoughts_label = tk.Label(app, text="Thoughts/Feelings:")
-thoughts_text = tk.Text(app, height=10, width=30)
-
-save_button = tk.Button(app, text="Save Entry", command=save_entry)
-clear_button = tk.Button(app, text="Clear Fields", command=clear_fields)
-
-# Create a mood analytics graph (you can use libraries like Matplotlib for this)
-# You'll need to install Matplotlib: pip install matplotlib
-
+# Function to show mood analytics (existing code)
 def show_mood_analytics():
     # Retrieve mood data from the journal (you may need to parse the journal file)
     # For simplicity, let's assume a static mood dataset
@@ -66,61 +109,42 @@ def show_mood_analytics():
     plt.title("Mood Analytics")
     plt.show()
 
-show_analytics_button = tk.Button(app, text="Show Mood Analytics", command=show_mood_analytics)
+show_analytics_button = tk.Button(analytics_frame, text="Show Mood Analytics", command=show_mood_analytics)
 
-# Progress Tracking
-goal_label = tk.Label(app, text="Self-Improvement Goal:")
-goal_entry = tk.Entry(app)
-goal_progress = tk.Label(app, text="Progress: 0%")
+# Self-Improvement Goals Widgets
+goal_listbox = tk.Listbox(goals_frame, height=10, width=40)
+goal_entry = tk.Entry(goals_frame)
+add_goal_button = tk.Button(goals_frame, text="Add Goal", command=add_goal)
+mark_completed_button = tk.Button(goals_frame, text="Mark Completed", command=mark_completed)
 
-update_progress_button = tk.Button(app, text="Update Progress", command = goal_progress)
-
-def update_progress():
-    # You can calculate progress here based on user input and update goal_progress
-    # For example, if you have a numeric goal, you can use goal_entry.get() to retrieve the goal value.
-    # Update the progress label accordingly.
-    # You might need to use some data storage to save goals and progress.
-
-# Feedback
-    feedback_window = None
-
-def open_feedback_form():
-    global feedback_window
-    feedback_window = tk.Toplevel(app)
-    feedback_window.title("Feedback Form")
-
-    feedback_label = tk.Label(feedback_window, text="Please provide your feedback:")
-    feedback_text = tk.Text(feedback_window, height=10, width=30)
-    submit_feedback_button = tk.Button(feedback_window, text="Submit Feedback", command=submit_feedback)
-
-    feedback_label.pack()
-    feedback_text.pack()
-    submit_feedback_button.pack()
-
-def submit_feedback():
-    feedback = feedback_text.get("1.0", "end-1c")
-    # You can save the feedback to a file or database, or send it to your server for analysis.
-
-feedback_button = tk.Button(app, text="Provide Feedback", command=open_feedback_form)
-
-# Grid layout for widgets
+# Grid layout for widgets in Journal Entry frame
 mood_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
 mood_entry.grid(row=0, column=1, padx=10, pady=5)
 thoughts_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
 thoughts_text.grid(row=1, column=1, padx=10, pady=5, rowspan=3)
-
-# Place both buttons in the same row, with the Clear button in column 2
 save_button.grid(row=4, column=0, padx=10, pady=10)
 clear_button.grid(row=4, column=1, padx=10, pady=10)
-show_analytics_button.grid(row=5, column=0, columnspan=2, padx=10, pady=10)
 
-# Progress Tracking and Feedback
-goal_label.grid(row=6, column=0, padx=10, pady=5, sticky="e")
-goal_entry.grid(row=6, column=1, padx=10, pady=5)
-goal_progress.grid(row=7, column=0, padx=10, pady=5, columnspan=2)
-update_progress_button.grid(row=8, column=0, columnspan=2, padx=10, pady=10)
-feedback_button.grid(row=9, column=0, columnspan=2, padx=10, pady=10)
+# Grid layout for widgets in Mood Analytics frame
+show_analytics_button.grid(row=0, column=0, padx=10, pady=10)
+
+# Grid layout for widgets in Self-Improvement Goals frame
+goal_entry.grid(row=6, column=0, padx=10, pady=5)
+add_goal_button.grid(row=6, column=1, padx=10, pady=5)
+mark_completed_button.grid(row=7, column=0, columnspan=2, padx=10, pady=5)
+goal_listbox.grid(row=0, column=0, padx=10, pady=10, rowspan=5, columnspan=2)
+
+# Initialize goals list and load from JSON file if it exists
+goals = []
+
+if os.path.exists("goals.json"):
+    with open("goals.json", "r") as file:
+        goals = json.load(file)
+
+# Populate the goal_listbox with existing goals
+for goal in goals:
+    goal_text = goal["Goal"]
+    goal_listbox.insert(tk.END, goal_text)
 
 # Start the Tkinter main loop
 app.mainloop()
-# this is new
