@@ -41,3 +41,5 @@ def populate_goals(goal_listbox):
     for goal in goals:
         goal_text = goal["Goal"]
         goal_listbox.insert(tk.END, goal_text)
+
+#Final
