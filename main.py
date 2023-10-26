@@ -88,5 +88,3 @@ goals.populate_goals(goal_listbox)
 
 # Start the Tkinter main loop
 app.mainloop()
-
-# Final

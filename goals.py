@@ -2,13 +2,18 @@ import json
 import tkinter as tk
 import os
 
+# Initialize goals as an empty list
 goals = []
 
 def load_goals():
     global goals
     if os.path.exists("goals.json"):
         with open("goals.json", "r") as file:
-            goals = json.load(file)
+            try:
+                goals = json.load(file)
+            except json.JSONDecodeError:
+                # If the file is not valid JSON, initialize goals as an empty list
+                goals = []
 
 def add_goal(goal_entry, goal_listbox):
     goal = goal_entry.get()
@@ -42,4 +47,5 @@ def populate_goals(goal_listbox):
         goal_text = goal["Goal"]
         goal_listbox.insert(tk.END, goal_text)
 
-#Final
+# Load goals at the beginning
+load_goals()
