@@ -151,6 +151,7 @@ def show_mood_analytics_piechart():
 
     fig, ax = plt.subplots()
     ax.pie(counts, labels=moods, autopct='%1.1f%%')
+    plt.show()
 
 show_pie_chart_button = tk.Button(analytics_frame, text="Show Mood Pie Chart", command=show_mood_analytics_piechart)
 
