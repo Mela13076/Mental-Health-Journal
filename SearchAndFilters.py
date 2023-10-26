@@ -65,7 +65,12 @@ def add_mood_types(left_frame):
         tk.Radiobutton(mood_type_inner_frame, text=moodType, variable=selected_mood, value=moodType, command=filter_entries).pack()
 
 def add_keywords(right_frame):
-    keyWords = ["#Cheerful", "#Joy", "#Happy", "#Delight", "#Tearful", "#Depression", "#Concerned"]
+    global keywords_map
+    keywords_map = defaultdict(list)
+    keywords_map['Happy'].extend(['Cheerful', 'Joy', 'Happy', 'Delight', 'Tearful', 'glad'])
+    keywords_map['Sad'].extend(['Hopeless', 'Depressed', 'Concerned', 'Miserable', 'Heartbroken', 'Sad'])
+    keywords_map['Anxious'].extend(['Fear', 'Anxious', 'Worry', 'Stress', 'Panic', 'Discomfort'])
+    keywords_map['Neutral'].extend(['Disinterested', 'Undecided', 'Neutral', 'Unbiased', 'Uninvolved', 'Fair-minded'])
 
     keyword_outer_frame = tk.Frame(right_frame, borderwidth=2, relief="groove")
     keyword_outer_frame.pack()
@@ -82,11 +87,13 @@ def add_keywords(right_frame):
     scroll_bar.pack(side="bottom", fill="x")
     canvas.create_window((0, 0), window=keyword_inner_frame, anchor="nw")
 
-    selected_keyword = {}
-    for keyword in keyWords:
-        selected_keyword[keyword] = tk.StringVar()
-        tk.Checkbutton(keyword_inner_frame, text=keyword, variable=selected_keyword[keyword]).pack(side="left")
-    
+    global checked_keywords, keywords
+    checked_keywords = {}
+    keywords = sum(list(keywords_map.values()), [])
+    for keyword in keywords:
+        hashtag_keyword = '#'+keyword
+        checked_keywords[hashtag_keyword] = tk.IntVar()
+        tk.Checkbutton(keyword_inner_frame, text=hashtag_keyword, variable=checked_keywords[hashtag_keyword], command=filter_entries).pack(side="left")
 
 def add_date(right_frame):
     date_outer_frame = tk.Frame(right_frame, borderwidth=2, relief="groove")
@@ -116,6 +123,9 @@ def clear_filters():
     selected_mood.set('')
     from_date_calendar.delete(0, 'end')
     to_date_calendar.delete(0, 'end')
+    for keyword in keywords:
+        hashtag_keyword = '#'+keyword
+        if(checked_keywords[hashtag_keyword].get() == 1): checked_keywords[hashtag_keyword].set(0)
     filter_entries()
 
 def filter_entries():
@@ -127,8 +137,9 @@ def filter_entries():
     filtered__mood = list(filter(lambda entry: selected_mood_type in entry['Mood'], load_entries()))
     filtered_mood_date = list(filter(lambda filtered_entry: filter_by_date(filtered_entry['Date'].split(' ')[0], 
                                                 selected_from_date, selected_to_date), filtered__mood))
-    filtered_mood_date_thaughts = filter_by_taughts(thought_input, filtered_mood_date)
-    display_entries(filtered_mood_date_thaughts, entries_frame)
+    filtered_mood_date_keywords = filter_by_keywords(filtered_mood_date)
+    filtered_mood_date_keywords_thaughts = filter_by_taughts(thought_input, filtered_mood_date_keywords)
+    display_entries(filtered_mood_date_keywords_thaughts, entries_frame)
 
 def filter_by_date(date, from_date, to_date):
     if from_date != '' and to_date != '':
@@ -138,10 +149,22 @@ def filter_by_date(date, from_date, to_date):
         return from_date <= date <= to_date
     else: return True
 
-def filter_by_taughts(thought_input, thought_entries):
+def filter_by_keywords(filtered_mood_date):
+    checked_keys = set()
+    for key, values in keywords_map.items():
+        for keyword in values:
+            if(checked_keywords['#'+keyword].get() == 1):
+                checked_keys.add(key)
+    checked_keys = list(checked_keys)
+    filtered_mood_date_keywords = []
+    for checked_word in checked_keys:
+        filtered_mood_date_keywords.extend(list(filter(lambda entry: checked_word.lower() == entry['Mood'].lower(), filtered_mood_date)))
+    return filtered_mood_date_keywords if(len(checked_keys) > 0) else filtered_mood_date
+
+def filter_by_taughts(thought_input, filtered_mood_date_keywords):
     words = list(filter(lambda word: word.lower()!='', re.split(r'\s+', thought_input))) if(len(thought_input) > 0) else ['']
     thoughts_len_map = defaultdict(list)
-    for thought_entry in thought_entries:
+    for thought_entry in filtered_mood_date_keywords:
         size = len(list(filter(lambda word: word.lower() in thought_entry['Thoughts'].lower(), words)))
         if(size > 0):
             thoughts_len_map[size].append(thought_entry)
@@ -175,5 +198,3 @@ def load_entries():
             return json.load(jsonFile)
     except FileNotFoundError:
         print("Unable to load data, file not found")
-
-#pop_up = None
