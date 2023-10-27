@@ -85,6 +85,7 @@ def toggle_goals_visibility():
 
 # Create the main application window
 app = tk.Tk()
+app.iconbitmap("./calm_318-452548.jpg.ico")
 app.title("Mental Health Journal")
 
 # Create and configure frames
