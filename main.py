@@ -3,8 +3,19 @@ from tkinter import ttk
 from datetime import datetime
 import matplotlib.pyplot as plt
 import json
+import SearchAndFilters
+ 
+import ai_base
 
-# Function to save journal entries to JSON file (existing code)
+# Callback function for save button
+def save_button_callback():
+    input_string = thoughts_text.get("1.0", "end-1c")
+    input_mood = mood_var.get()
+    answer = ai_base.get_ai_answer(input_string, input_mood)
+    ai_string.set(answer)
+
+    save_entry()
+# Function to save journal entries to JSON file
 def save_entry():
     entry_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     mood = mood_var.get()
@@ -81,24 +92,36 @@ journal_frame = ttk.LabelFrame(app, text="Journal Entry")
 analytics_frame = ttk.LabelFrame(app, text="Mood Analytics")
 goals_frame = ttk.LabelFrame(app, text="Self-Improvement Goals")
 
-journal_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-analytics_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-goals_frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
+journal_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+analytics_frame.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
+goals_frame.grid(row=2, column=2, padx=10, pady=10, sticky="nsew")
 
 app.grid_columnconfigure(0, weight=1)
 app.grid_columnconfigure(1, weight=1)
 app.grid_columnconfigure(2, weight=1)
 
+ai_string = tk.StringVar()
+ai_string.set("AI text")
+ai_label = tk.Label(journal_frame, textvariable=ai_string, wraplength=300)
+
 # Journal Entry Widgets (existing code)
 mood_label = tk.Label(journal_frame, text="Mood:")
 mood_var = tk.StringVar()
 mood_entry = ttk.Combobox(journal_frame, textvariable=mood_var, values=["Happy", "Sad", "Anxious", "Neutral", "Other"])
+ 
 thoughts_label = tk.Label(journal_frame, text="Thoughts/Feelings:")
 thoughts_text = tk.Text(journal_frame, height=10, width=30)
-save_button = tk.Button(journal_frame, text="Save Entry", command=save_entry)
+save_button = tk.Button(journal_frame, text="Save Entry", command=save_button_callback)
 clear_button = tk.Button(journal_frame, text="Clear Fields", command=clear_fields)
 
-# Mood Analytics Widgets (existing code)
+
+
+SearchAndFilters.load(app, mood_var, thoughts_text)
+ 
+# Create a mood analytics graph (you can use libraries like Matplotlib for this)
+# You'll need to install Matplotlib: pip install matplotlib
+ 
+ 
 def show_mood_analytics_barchart():
     # Read mood data from the JSON file
     try:
@@ -170,6 +193,7 @@ thoughts_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
 thoughts_text.grid(row=1, column=1, padx=10, pady=5, rowspan=3)
 save_button.grid(row=4, column=0, padx=10, pady=10)
 clear_button.grid(row=4, column=1, padx=10, pady=10)
+ai_label.grid(row=5, column=1, padx=10, pady=10)
 
 # Grid layout for widgets in Mood Analytics frame (existing code)
 show_bar_chart_button.grid(row=0, column=0, padx=10, pady=10)
