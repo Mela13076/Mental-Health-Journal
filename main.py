@@ -3,7 +3,7 @@ from tkinter import ttk
 from datetime import datetime
 import json
 import os
-import goals  # Import the functions from goals.py
+import goals
 
 # Function to save journal entries to JSON file (existing code)
 def save_entry():
