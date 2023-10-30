@@ -3,7 +3,7 @@ from tkinter import ttk
 from datetime import datetime
 import matplotlib.pyplot as plt
 import json
-import music
+import music 
 
 # Function to save journal entries to JSON file
 def save_entry():
