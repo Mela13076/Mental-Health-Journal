@@ -12,19 +12,19 @@ def load(app, mood_var, thoughts_text):
     mood_input = mood_var
     thoughts_input = thoughts_text
     
-    search_and_filter_entries_frame = tk.LabelFrame(app, text="Search and Filter Entries")
-    search_and_filter_frame = tk.Frame(search_and_filter_entries_frame, borderwidth=2, relief="groove")
+    search_and_filter_entries_frame = ttk.LabelFrame(app, text="Search and Filter Entries")
+    search_and_filter_frame = ttk.Frame(search_and_filter_entries_frame)
 
     search_label = tk.Label(search_and_filter_frame, text="Search Entries:")
     search_field = tk.Text(search_and_filter_frame, height=1, width=30)
     search_field.bind("<KeyRelease>", lambda e: filter_entries())
 
-    filter_label = tk.Label(search_and_filter_frame, text="Filter Entires:")
-    filter_frame = tk.Frame(search_and_filter_frame, borderwidth=2, relief="groove")
+    filter_label = ttk.Label(search_and_filter_frame, text="Filter Entires:")
+    filter_frame = ttk.Frame(search_and_filter_frame)
 
-    left_frame = tk.Frame(filter_frame, borderwidth=2, relief="groove")
+    left_frame = ttk.Frame(filter_frame)
     left_frame.grid(row=0, column=0, padx=5, pady=5)
-    right_frame = tk.Frame(filter_frame, borderwidth=2, relief="groove")
+    right_frame = ttk.Frame(filter_frame)
     right_frame.grid(row=0, column=1, padx=5, pady=5)
 
     add_mood_types(left_frame)
@@ -42,19 +42,19 @@ def load(app, mood_var, thoughts_text):
 
 def add_entries(search_and_filter_entries_frame):
     global entries_frame
-    entries_frame = tk.Frame(search_and_filter_entries_frame, borderwidth=2)
+    entries_frame = ttk.Frame(search_and_filter_entries_frame, borderwidth=2)
     display_entries(load_entries(), entries_frame)
     entries_frame.pack(side='right', padx=10, pady=5)
 
 def add_mood_types(left_frame):
     canvas = tk.Canvas(left_frame, width=100, height=110)
 
-    scroll_bar = tk.Scrollbar(left_frame, orient='vertical', command=canvas.yview)
+    scroll_bar = ttk.Scrollbar(left_frame, orient='vertical', command=canvas.yview)
 
     canvas.configure(yscrollcommand=scroll_bar.set)
     canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-    mood_type_inner_frame = tk.Frame(canvas)
+    mood_type_inner_frame = ttk.Frame(canvas)
     canvas.pack(side="left", fill="both", expand=1)
     scroll_bar.pack(side="right", fill="y")
     canvas.create_window((0, 0), window=mood_type_inner_frame, anchor="nw")
@@ -72,17 +72,17 @@ def add_keywords(right_frame):
     keywords_map['Anxious'].extend(['Fear', 'Anxious', 'Worry', 'Stress', 'Panic', 'Discomfort'])
     keywords_map['Neutral'].extend(['Disinterested', 'Undecided', 'Neutral', 'Unbiased', 'Uninvolved', 'Fair-minded'])
 
-    keyword_outer_frame = tk.Frame(right_frame, borderwidth=2, relief="groove")
+    keyword_outer_frame = ttk.Frame(right_frame)
     keyword_outer_frame.pack()
 
     canvas = tk.Canvas(keyword_outer_frame, width=200, height=25)
 
-    scroll_bar = tk.Scrollbar(keyword_outer_frame, orient='horizontal', command=canvas.xview)
+    scroll_bar = ttk.Scrollbar(keyword_outer_frame, orient='horizontal', command=canvas.xview)
 
     canvas.configure(xscrollcommand=scroll_bar.set)
     canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
-    keyword_inner_frame = tk.Frame(canvas)
+    keyword_inner_frame = ttk.Frame(canvas)
     canvas.pack(fill="both", expand=True)
     scroll_bar.pack(side="bottom", fill="x")
     canvas.create_window((0, 0), window=keyword_inner_frame, anchor="nw")
@@ -96,7 +96,7 @@ def add_keywords(right_frame):
         tk.Checkbutton(keyword_inner_frame, text=hashtag_keyword, variable=checked_keywords[hashtag_keyword], command=filter_entries).pack(side="left")
 
 def add_date(right_frame):
-    date_outer_frame = tk.Frame(right_frame, borderwidth=2, relief="groove")
+    date_outer_frame = ttk.Frame(right_frame)
     date_outer_frame.pack()
 
     from_date = tk.Label(date_outer_frame, text="Date from: ")

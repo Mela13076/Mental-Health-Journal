@@ -4,6 +4,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import json
 import SearchAndFilters
+import quote
  
 import ai_base
 
@@ -101,7 +102,7 @@ app.grid_columnconfigure(1, weight=1)
 app.grid_columnconfigure(2, weight=1)
 
 ai_string = tk.StringVar()
-ai_string.set("AI text")
+ai_string.set("")
 ai_label = tk.Label(journal_frame, textvariable=ai_string, wraplength=300)
 
 # Journal Entry Widgets (existing code)
@@ -117,9 +118,7 @@ clear_button = tk.Button(journal_frame, text="Clear Fields", command=clear_field
 
 
 SearchAndFilters.load(app, mood_var, thoughts_text)
- 
-# Create a mood analytics graph (you can use libraries like Matplotlib for this)
-# You'll need to install Matplotlib: pip install matplotlib
+quote.load(app)
  
  
 def show_mood_analytics_barchart():
@@ -185,6 +184,8 @@ add_goal_button = tk.Button(goals_frame, text="Add Goal", command=add_goal)
 mark_completed_button = tk.Button(goals_frame, text="Mark Completed", command=mark_completed)
 view_goals_button = tk.Button(goals_frame, text="View Goals", command=view_goals)
 toggle_visibility_button = tk.Button(goals_frame, text="Toggle Visibility", command=toggle_goals_visibility)
+
+
 
 # Grid layout for widgets in Journal Entry frame (existing code)
 mood_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
