@@ -3,8 +3,9 @@ from tkinter import ttk
 from datetime import datetime
 import matplotlib.pyplot as plt
 import json
+import music
 
-# Function to save journal entries to JSON file (existing code)
+# Function to save journal entries to JSON file
 def save_entry():
     entry_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     mood = mood_var.get()
@@ -12,7 +13,7 @@ def save_entry():
 
     # Read existing data from JSON file
     try:
-        with open("data.json", "r") as file:
+        with open("fake_data.json", "r") as file:
             data = json.load(file)
     except FileNotFoundError:
         data = []
@@ -30,75 +31,29 @@ def save_entry():
 
     clear_fields()
 
-# Function to clear input fields (existing code)
+# Function to clear input fields
 def clear_fields():
     mood_var.set("")
     thoughts_text.delete("1.0", "end")
-
-# Function to add a goal to the list
-def add_goal():
-    goal = goal_entry.get()
-    if goal:
-        goals.append({"Goal": goal, "Completed": False})
-        goal_listbox.insert(tk.END, goal)
-        goal_entry.delete(0, tk.END)
-
-# Function to mark a goal as completed
-def mark_completed():
-    selected_goal = goal_listbox.get(tk.ACTIVE)
-    if selected_goal:
-        for goal in goals:
-            if goal["Goal"] == selected_goal:
-                goal["Completed"] = True
-                goal_listbox.itemconfig(tk.ACTIVE, {'bg': 'light green'})
-
-# Function to view goals
-def view_goals():
-    view_window = tk.Toplevel(app)
-    view_window.title("Goals List")
-
-    for goal in goals:
-        goal_text = goal["Goal"]
-        completed = " (Completed)" if goal["Completed"] else ""
-        goal_label = tk.Label(view_window, text=goal_text + completed)
-        goal_label.pack()
-
-# Function to toggle the visibility of the goals list
-def toggle_goals_visibility():
-    if goal_listbox.winfo_viewable():
-        goal_listbox.grid_remove()
-        toggle_visibility_button.config(text="Show Goals")
-    else:
-        goal_listbox.grid()
-        toggle_visibility_button.config(text="Hide Goals")
 
 # Create the main application window
 app = tk.Tk()
 app.title("Mental Health Journal")
 
-# Create and configure frames
-journal_frame = ttk.LabelFrame(app, text="Journal Entry")
-analytics_frame = ttk.LabelFrame(app, text="Mood Analytics")
-goals_frame = ttk.LabelFrame(app, text="Self-Improvement Goals")
-
-journal_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-analytics_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-goals_frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
-
-app.grid_columnconfigure(0, weight=1)
-app.grid_columnconfigure(1, weight=1)
-app.grid_columnconfigure(2, weight=1)
-
-# Journal Entry Widgets (existing code)
-mood_label = tk.Label(journal_frame, text="Mood:")
+# Create and configure widgets
+mood_label = tk.Label(app, text="Mood:")
 mood_var = tk.StringVar()
-mood_entry = ttk.Combobox(journal_frame, textvariable=mood_var, values=["Happy", "Sad", "Anxious", "Neutral", "Other"])
-thoughts_label = tk.Label(journal_frame, text="Thoughts/Feelings:")
-thoughts_text = tk.Text(journal_frame, height=10, width=30)
-save_button = tk.Button(journal_frame, text="Save Entry", command=save_entry)
-clear_button = tk.Button(journal_frame, text="Clear Fields", command=clear_fields)
+mood_entry = ttk.Combobox(app, textvariable=mood_var, values=["Happy", "Sad", "Anxious", "Neutral", "Other"])
 
-# Mood Analytics Widgets (existing code)
+thoughts_label = tk.Label(app, text="Thoughts/Feelings:")
+thoughts_text = tk.Text(app, height=10, width=30)
+
+save_button = tk.Button(app, text="Save Entry", command=save_entry)
+clear_button = tk.Button(app, text="Clear Fields", command=clear_fields)
+
+# Create a mood analytics graph (you can use libraries like Matplotlib for this)
+# You'll need to install Matplotlib: pip install matplotlib
+
 def show_mood_analytics():
     # Retrieve mood data from the journal (you may need to parse the journal file)
     # For simplicity, let's assume a static mood dataset
@@ -112,37 +67,22 @@ def show_mood_analytics():
     plt.title("Mood Analytics")
     plt.show()
 
-show_analytics_button = tk.Button(analytics_frame, text="Show Mood Analytics", command=show_mood_analytics)
+show_analytics_button = tk.Button(app, text="Show Mood Analytics", command=show_mood_analytics)
 
-# Self-Improvement Goals Widgets
-goal_listbox = tk.Listbox(goals_frame, height=10, width=40)
-goal_entry = tk.Entry(goals_frame)
-add_goal_button = tk.Button(goals_frame, text="Add Goal", command=add_goal)
-mark_completed_button = tk.Button(goals_frame, text="Mark Completed", command=mark_completed)
-view_goals_button = tk.Button(goals_frame, text="View Goals", command=view_goals)
-toggle_visibility_button = tk.Button(goals_frame, text="Toggle Visibility", command=toggle_goals_visibility)
+# Create music-related buttons
+play_music_button = tk.Button(app, text="Play Music", command=play_music)
+stop_music_button = tk.Button(app, text="Stop Music", command=stop_music)
 
-# Grid layout for widgets in Journal Entry frame (existing code)
+# Grid layout for widgets
 mood_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
 mood_entry.grid(row=0, column=1, padx=10, pady=5)
 thoughts_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
 thoughts_text.grid(row=1, column=1, padx=10, pady=5, rowspan=3)
-save_button.grid(row=4, column=0, padx=10, pady=10)
-clear_button.grid(row=4, column=1, padx=10, pady=10)
-
-# Grid layout for widgets in Mood Analytics frame (existing code)
-show_analytics_button.grid(row=0, column=0, padx=10, pady=10)
-
-# Grid layout for widgets in Self-Improvement Goals frame
-goal_listbox.grid(row=0, column=0, padx=10, pady=10, rowspan=5, columnspan=2)
-goal_entry.grid(row=6, column=0, padx=10, pady=5)
-add_goal_button.grid(row=6, column=1, padx=10, pady=5)
-mark_completed_button.grid(row=7, column=0, columnspan=2, padx=10, pady=5)
-view_goals_button.grid(row=8, column=0, columnspan=2, padx=10, pady=5)
-toggle_visibility_button.grid(row=9, column=0, columnspan=2, padx=10, pady=5)
-
-# Initialize goals list
-goals = []
+save_button.grid(row=4, column=0, columnspan=2, padx=10, pady=10)
+clear_button.grid(row=4, column=1, columnspan=2, padx=10, pady=10)
+show_analytics_button.grid(row=5, column=0, columnspan=2, padx=10, pady=10)
+play_music_button.grid(row=6, column=0, padx=10, pady=10)
+stop_music_button.grid(row=6, column=1, padx=10, pady=10)
 
 # Start the Tkinter main loop
 app.mainloop()
