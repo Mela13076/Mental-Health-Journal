@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
 import json
-import goals
+import custom
 import os
 
 
