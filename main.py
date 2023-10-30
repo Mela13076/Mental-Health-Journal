@@ -3,7 +3,7 @@ from tkinter import ttk
 from datetime import datetime
 import json
 import os
-import goals
+import goals  # Import the functions from goals.py
 
 # Function to save journal entries to JSON file (existing code)
 def save_entry():
@@ -88,5 +88,3 @@ goals.populate_goals(goal_listbox)
 
 # Start the Tkinter main loop
 app.mainloop()
-
-#this the final code

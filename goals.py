@@ -49,5 +49,3 @@ def populate_goals(goal_listbox):
 
 # Load goals at the beginning
 load_goals()
-
-#this is the final code
